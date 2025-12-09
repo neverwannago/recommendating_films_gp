@@ -24,18 +24,20 @@ class recommendation_strategy(ABC):
 
 class genre_recommend(recommendation_strategy): # сюда мы передаем пользователя которому рекомендуем
     def __init__(self, user: User):
-        self._user = user
-        self._favourite_genres = list[Genre] # чисто указываем, что где у нас может лежать 
+        self._usid = user.id # переменная для получения айди юза
+        self._favourite_genres = user.favorite_genres # здесь это след список - [Genre.HORROR, Genre.THRILLER]
 
 
-    # нужно получить жанры пользователя (создаем метод get_favourite_genres)
-    # по ним найти фильмы (создаем метод find_films_by_genre)
-    # и вывести все это дело (или через __str__ или просто метод recommend)
-
-    def get_favourite_genres(self):
-        pass
-
-    def find_films_by_genre(self):
-        pass
-
-reciGenre = genre_recommend()
+    def recommend(self): #конкретное возращение данных
+        all_films_id = set() # делаем множество, ибо фильмы могут совпадать, будет круто
+        for us_genre in self._favourite_genres:# O(n^3)??? как нибудь упростить | перебираем жанры юза
+            for film in MovieLibrary.list_movies(): # перебираем фильмы
+                for mov_genre in film[2]: # перебираем в них их жанры
+                    if us_genre == mov_genre: # если жанр совпадает
+                        all_films_id.add(film[0]) #возвращаем айди фильма
+        movies = []
+        for mov_id in all_films_id:
+            our_movie = MovieLibrary.get_movie(mov_id)
+            movies.append(our_movie)
+        
+        return movies
