@@ -37,8 +37,8 @@ class MovieLibrary:
     def add_genre_to_user(self, user_id: int, genre: Genre): # выполняется при условии что пользователь есть
         us = self.get_user(user_id)#вроде же мы можем так написать, почему бы нет?
 
-        if genre in us.favourite_genres:
-            us.add_favourite_genre(genre) # 83 строчка в data.py, вроде должно работать
+        if genre in us.favorite_genres:
+            us.add_favorite_genre(genre) # 83 строчка в data.py, вроде должно работать
 
     def remove_genre_from_user(self, user_id: int, genre: Genre):
         us = self.get_user(user_id)
