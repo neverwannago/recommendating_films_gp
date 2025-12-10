@@ -54,10 +54,15 @@ class User(BaseModel):
         self._name = name  # имя пользователя
         self._ratings: dict[int, float] = {}  # оценки фильмов в виде {id фильма: оценка}
         self._favorite_genres: list[Genre] = []  # любимые жанры
+    def __str__(self):
+        return f"Пользователь {self._name} ID: {self._id})"
 
     @property
     def id(self):
         return self._id  # возвращаем айди
+    @property
+    def name(self):
+        return self._name
 
     @property
     def favorite_genres(self):
