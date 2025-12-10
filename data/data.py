@@ -14,13 +14,8 @@ class Genre(Enum):
     ADVENTURE = "Приключения"
     HISTORY = "История"
 
-class BaseModel(ABC):
-    @abstractmethod
-    def __str__(self):  # обязуем все объекты уметь красиво выводиться через print()
-        pass
-
 # КЛАСС ФИЛЬМОВ
-class Movie(BaseModel):
+class Movie:
     def __init__(self, movie_id: int, title: str, genres: list[Genre],
                  director: str, year: int, rating: float):
         self._id = movie_id  # айди фильма, приватная переменная
@@ -48,7 +43,7 @@ class Movie(BaseModel):
         return self._rating
 
 # КЛАСС ПОЛЬЗОВАТЕЛЕЙ
-class User(BaseModel):
+class User:
     def __init__(self, user_id: int, name: str):
         self._id = user_id  # айди пользователя
         self._name = name  # имя пользователя

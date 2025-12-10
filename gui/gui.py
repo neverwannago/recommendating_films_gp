@@ -1,11 +1,20 @@
-from data.data import User
+from data.data import User, Genre, Movie
 from data.data_manager.managing_data import MovieLibrary
+from data.data import TestData
 import recommendations.recommendations
+
 
 class ConsoleInterface:
     def __init__(self):
         self.library = MovieLibrary()
         self.current_user = None
+        self._load_test_data()  # Загружаем тестовые данные
+
+    def _load_test_data(self):
+        """Загружаем тестовые фильмы в библиотеку"""
+        test_movies = TestData.load_movies()
+        for movie in test_movies:
+            self.library.add_movie(movie)
 
     def clear_screen(self):
         import os
@@ -30,11 +39,32 @@ class ConsoleInterface:
             input("Нажмите Enter для продолжения...")
             return
 
+        print("\nВыберите любимые жанры (введите номера через запятую):")
+        genres_list = list(Genre)
+        for i, genre in enumerate(genres_list, 1):
+            print(f"{i}. {genre.value}")
 
+        selected_genres = []
+        try:
+            choices = input("Ваш выбор (например: 1,3,5): ").strip()
+            if choices:
+                choices = [int(c.strip()) for c in choices.split(',')]
+                for choice in choices:
+                    if 1 <= choice <= len(genres_list):
+                        selected_genres.append(genres_list[choice - 1])
+        except ValueError:
+            print("Неверный формат ввода!")
+
+        # Создаем пользователя
         user = User(user_id, name)
+        for genre in selected_genres:
+            user.add_favorite_genre(genre)
+
         self.library.add_user(user)
 
         print(f"\nПользователь {name} успешно зарегистрирован!")
+        if selected_genres:
+            print(f"Любимые жанры: {', '.join([g.value for g in selected_genres])}")
         input("Нажмите Enter для продолжения...")
 
     def login_user(self):
@@ -64,59 +94,6 @@ class ConsoleInterface:
 
         input("Нажмите Enter для продолжения...")
 
-    def _show_all_movies(self):
-        """Показать все фильмы"""
-        movies = self.library.list_movies()
-
-        if not movies:
-            print("Нет фильмов для отображения.")
-            return
-
-        self.print_header("ВСЕ ФИЛЬМЫ")
-        print(f"Всего фильмов в библиотеке: {len(movies)}")
-
-        # Отображаем фильмы
-        for i, movie in enumerate(movies, 1):
-            user_rating = self.current_user.ratings.get(movie.id)
-            rating_text = f"Ваша оценка: {user_rating}/10" if user_rating else "Не оценено"
-
-            print(f"\n{i}. {movie.title} ({movie.year})")
-            print(f"   Режиссер: {movie.director}")
-            print(f"   Жанры: {', '.join([g.value for g in movie.genres])}")
-            print(f"   Рейтинг: {movie.rating:.1f}/10 | {rating_text}")
-
-    def browse_movies(self):
-        if not self.current_user:
-            print("Сначала войдите в систему!")
-            return
-
-        self.print_header("ПРОСМОТР ФИЛЬМОВ")
-
-        movies = self.library.list_movies()
-
-        while True:
-            print(f"\nВсего фильмов в библиотеке: {len(movies)}")
-            print("\nВыберите действие:")
-            print("1. Показать все фильмы")
-            print("2. Фильтровать по жанру")
-            print("3. Фильтровать по рейтингу (общественному)")
-            print("4. Фильтровать по возможно вам понравиться")
-            print("5. Вернуться в главное меню")
-
-            choice = input("\nВаш выбор: ").strip()
-            if choice == '1':
-                self._show_all_movies()
-            # elif choice == '2':
-            #     self.
-            # elif choice == '3':
-            #     self.
-            # elif choice == '4':
-            #     self.
-            elif choice == '5':
-                break
-            else:
-                print("Неверный выбор!")
-
     def view_profile(self):
         if not self.current_user:
             print("Сначала войдите в систему!")
@@ -136,31 +113,121 @@ class ConsoleInterface:
             else:
                 print("  Жанры не указаны")
 
+            print(f"\n ОЦЕНЕННЫХ ФИЛЬМОВ: {len(self.current_user.ratings)}")
+            if self.current_user.ratings:
+                for movie_id, rating in list(self.current_user.ratings.items())[:5]:  # Показываем первые 5
+                    movie = self.library.get_movie(movie_id)
+                    if movie:
+                        print(f"  • {movie.title}: {rating}/10")
+
             print("\n" + "-" * 50)
             print("МЕНЮ ПРОФИЛЯ:")
             print("1. Изменить любимые жанры")
             print("2. Вернуться в главное меню")
 
             choice = input("\nВыберите действие: ").strip()
-            # мне кажеться можно и без словаря
+
             if choice == '1':
-                print('be')
+                self._edit_genres()
             elif choice == '2':
                 break
             else:
                 print("Неверный выбор!")
                 input("Нажмите Enter для продолжения...")
 
+    def _edit_genres(self):
+        """Редактирование любимых жанров пользователя"""
+        self.clear_screen()
+        self.print_header("РЕДАКТИРОВАНИЕ ЛЮБИМЫХ ЖАНРОВ")
+
+        print("Текущие любимые жанры:")
+        if self.current_user.favorite_genres:
+            for genre in self.current_user.favorite_genres:
+                print(f"  • {genre.value}")
+        else:
+            print("  Нет любимых жанров")
+
+        print("\n1. Добавить жанры")
+        print("2. Удалить жанры")
+        print("3. Очистить все жанры")
+        print("4. Назад")
+
+        choice = input("\nВыберите действие: ").strip()
+
+        if choice == '1':
+            self._add_genres()
+        elif choice == '2':
+            self._remove_genres()
+        elif choice == '3':
+            self.current_user._favorite_genres.clear()
+            print("Все жанры удалены!")
+            input("Нажмите Enter для продолжения...")
+        elif choice == '4':
+            return
+        else:
+            print("Неверный выбор!")
+            input("Нажмите Enter для продолжения...")
+
+    def _add_genres(self):
+        """Добавление жанров"""
+        print("\nВыберите жанры для добавления (введите номера через запятую):")
+        genres_list = list(Genre)
+        for i, genre in enumerate(genres_list, 1):
+            print(f"{i}. {genre.value}")
+
+        try:
+            choices = input("Ваш выбор: ").strip()
+            if choices:
+                choices = [int(c.strip()) for c in choices.split(',')]
+                added_count = 0
+                for choice in choices:
+                    if 1 <= choice <= len(genres_list):
+                        genre = genres_list[choice - 1]
+                        if genre not in self.current_user.favorite_genres:
+                            self.current_user.add_favorite_genre(genre)
+                            added_count += 1
+
+                if added_count > 0:
+                    print(f"Добавлено {added_count} жанров!")
+                else:
+                    print("Не было добавлено новых жанров.")
+        except ValueError:
+            print("Неверный формат ввода!")
+
+        input("Нажмите Enter для продолжения...")
+
+    def _remove_genres(self):
+        """Удаление жанров"""
+        if not self.current_user.favorite_genres:
+            print("Нет жанров для удаления!")
+            input("Нажмите Enter для продолжения...")
+            return
+
+        print("\nВыберите жанры для удаления (введите номера через запятую):")
+        for i, genre in enumerate(self.current_user.favorite_genres, 1):
+            print(f"{i}. {genre.value}")
+
+        try:
+            choices = input("Ваш выбор: ").strip()
+            if choices:
+                choices = [int(c.strip()) for c in choices.split(',')]
+                removed_count = 0
+                # Сортируем в обратном порядке, чтобы индексы не сбивались при удалении
+                for choice in sorted(choices, reverse=True):
+                    if 1 <= choice <= len(self.current_user.favorite_genres):
+                        self.current_user.favorite_genres.pop(choice - 1)
+                        removed_count += 1
+
+                if removed_count > 0:
+                    print(f"Удалено {removed_count} жанров!")
+                else:
+                    print("Не было удалено ни одного жанра.")
+        except ValueError:
+            print("Неверный формат ввода!")
+
+        input("Нажмите Enter для продолжения...")
 
     def main_menu(self):
-        actions = {
-            '1': self.register_user,
-            '2': self.login_user,
-            '3': self.browse_movies,
-            '4': self.view_profile,
-            '5': 'exit'
-        }
-
         while True:
             self.clear_screen()
             self.print_header("КИНОТЕКА - СИСТЕМА РЕКОМЕНДАЦИЙ")
@@ -187,11 +254,18 @@ class ConsoleInterface:
             elif choice == '3' and not self.current_user:
                 print("\n⚠ Для этого действия требуется авторизация!")
                 input("Нажмите Enter для продолжения...")
-            elif choice in actions:
-                actions[choice]()
+            elif choice == '1':
+                self.register_user()
+            elif choice == '2':
+                self.login_user()
+            elif choice == '3':
+                self.browse_movies()
+            elif choice == '4':
+                self.view_profile()
             else:
                 print("Неверный выбор!")
                 input("Нажмите Enter для продолжения...")
+
 
 def main():
     interface = ConsoleInterface()
