@@ -41,3 +41,14 @@ class genre_recommend(recommendation_strategy): # сюда мы передаем
             movies.append(our_movie)
         
         return movies
+    
+class rating_recommend(recommendation_strategy):# легкая тема, просто берем список фильмов и сортируем по рейтингу
+    def __init__(self, lib: MovieLibrary):
+        self.lib = lib
+    
+    def recommend(self):
+        res = []
+        for film in self.lib:
+            res.add(max(film, key=film[5])) # по идее здесь сортируем просто по максимальному рейтингу
+        
+        return res #как нибудь позже надо бы сделать код намного лучше чем этот
