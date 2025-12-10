@@ -30,6 +30,7 @@ class ConsoleInterface:
             input("Нажмите Enter для продолжения...")
             return
 
+
         user = User(user_id, name)
         self.library.add_user(user)
 
@@ -116,12 +117,48 @@ class ConsoleInterface:
             else:
                 print("Неверный выбор!")
 
+    def view_profile(self):
+        if not self.current_user:
+            print("Сначала войдите в систему!")
+            input("Нажмите Enter для продолжения...")
+            return
+
+        while True:
+            self.clear_screen()
+            self.print_header(f"ПРОФИЛЬ: {self.current_user.name}")
+
+            print(f" Имя: {self.current_user.name}")
+            print(f" ID: {self.current_user.id}")
+            print(f" ЛЮБИМЫЕ ЖАНРЫ ({len(self.current_user.favorite_genres)}):")
+            if self.current_user.favorite_genres:
+                for i, genre in enumerate(self.current_user.favorite_genres, 1):
+                    print(f"  {i}. {genre.value}")
+            else:
+                print("  Жанры не указаны")
+
+            print("\n" + "-" * 50)
+            print("МЕНЮ ПРОФИЛЯ:")
+            print("1. Изменить любимые жанры")
+            print("2. Вернуться в главное меню")
+
+            choice = input("\nВыберите действие: ").strip()
+            # мне кажеться можно и без словаря
+            if choice == '1':
+                print('be')
+            elif choice == '2':
+                break
+            else:
+                print("Неверный выбор!")
+                input("Нажмите Enter для продолжения...")
+
+
     def main_menu(self):
         actions = {
             '1': self.register_user,
             '2': self.login_user,
             '3': self.browse_movies,
-            '4': 'exit'
+            '4': self.view_profile,
+            '5': 'exit'
         }
 
         while True:
@@ -136,14 +173,15 @@ class ConsoleInterface:
             print("1. Регистрация нового пользователя")
             print("2. Вход в систему")
             print("3. Просмотр фильмов")
-            print("4. Выход")
+            print("4. Профиль")
+            print("5. Выход")
 
             if not self.current_user:
                 print("\n⚠ Сначала войдите в систему или зарегистрируйтесь!")
 
             choice = input("\nВыберите действие: ").strip()
 
-            if choice == '4':
+            if choice == '5':
                 print("\nСпасибо за использование системы!")
                 break
             elif choice == '3' and not self.current_user:
