@@ -81,7 +81,7 @@ python main.py
 **Команда разработки:**
 
 * [Гончаренко Екатерина](https://github.com/r1525ucatther11-design)
-* [Губайдулин Тимур](https://github.com/Altn4ik)
+* [Гилязетдинов Тимур](https://github.com/Altn4ik)
 * [Агуров Марк](https://github.com/neverwannago)
 * [Галиев Данил](https://github.com/danilwg)
     
