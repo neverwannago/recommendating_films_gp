@@ -1,5 +1,6 @@
 from data.data import User
 from data.data_manager.managing_data import MovieLibrary
+import recommendations.recommendations
 
 class ConsoleInterface:
     def __init__(self):
@@ -62,7 +63,67 @@ class ConsoleInterface:
 
         input("Нажмите Enter для продолжения...")
 
+    def _show_all_movies(self):
+        """Показать все фильмы"""
+        movies = self.library.list_movies()
+
+        if not movies:
+            print("Нет фильмов для отображения.")
+            return
+
+        self.print_header("ВСЕ ФИЛЬМЫ")
+        print(f"Всего фильмов в библиотеке: {len(movies)}")
+
+        # Отображаем фильмы
+        for i, movie in enumerate(movies, 1):
+            user_rating = self.current_user.ratings.get(movie.id)
+            rating_text = f"Ваша оценка: {user_rating}/10" if user_rating else "Не оценено"
+
+            print(f"\n{i}. {movie.title} ({movie.year})")
+            print(f"   Режиссер: {movie.director}")
+            print(f"   Жанры: {', '.join([g.value for g in movie.genres])}")
+            print(f"   Рейтинг: {movie.rating:.1f}/10 | {rating_text}")
+
+    def browse_movies(self):
+        if not self.current_user:
+            print("Сначала войдите в систему!")
+            return
+
+        self.print_header("ПРОСМОТР ФИЛЬМОВ")
+
+        movies = self.library.list_movies()
+
+        while True:
+            print(f"\nВсего фильмов в библиотеке: {len(movies)}")
+            print("\nВыберите действие:")
+            print("1. Показать все фильмы")
+            print("2. Фильтровать по жанру")
+            print("3. Фильтровать по рейтингу (общественному)")
+            print("4. Фильтровать по возможно вам понравиться")
+            print("5. Вернуться в главное меню")
+
+            choice = input("\nВаш выбор: ").strip()
+            if choice == '1':
+                self._show_all_movies()
+            # elif choice == '2':
+            #     self.
+            # elif choice == '3':
+            #     self.
+            # elif choice == '4':
+            #     self.
+            elif choice == '5':
+                break
+            else:
+                print("Неверный выбор!")
+
     def main_menu(self):
+        actions = {
+            '1': self.register_user,
+            '2': self.login_user,
+            '3': self.browse_movies,
+            '4': 'exit'
+        }
+
         while True:
             self.clear_screen()
             self.print_header("КИНОТЕКА - СИСТЕМА РЕКОМЕНДАЦИЙ")
@@ -74,24 +135,25 @@ class ConsoleInterface:
             print("\nГЛАВНОЕ МЕНЮ:")
             print("1. Регистрация нового пользователя")
             print("2. Вход в систему")
-            print("3. Выход")
+            print("3. Просмотр фильмов")
+            print("4. Выход")
 
             if not self.current_user:
                 print("\n⚠ Сначала войдите в систему или зарегистрируйтесь!")
 
             choice = input("\nВыберите действие: ").strip()
 
-            if choice == '1':
-                self.register_user()
-            elif choice == '2':
-                self.login_user()
-            elif choice == '3':
+            if choice == '4':
                 print("\nСпасибо за использование системы!")
                 break
+            elif choice == '3' and not self.current_user:
+                print("\n⚠ Для этого действия требуется авторизация!")
+                input("Нажмите Enter для продолжения...")
+            elif choice in actions:
+                actions[choice]()
             else:
                 print("Неверный выбор!")
                 input("Нажмите Enter для продолжения...")
-
 
 def main():
     interface = ConsoleInterface()
