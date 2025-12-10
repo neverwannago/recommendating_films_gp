@@ -1,6 +1,5 @@
 from abc import ABC, abstractmethod
 from enum import Enum  # импортируем Enum, чтобы сделать фиксированный список жанров - для аккуратности кода
-from typing import List, Dict
 
 # Создаем список всех жанров фильмов, чтобы не писать их руками каждый раз
 class Genre(Enum):
@@ -15,7 +14,6 @@ class Genre(Enum):
     ADVENTURE = "Приключения"
     HISTORY = "История"
 
-# Базовая модель, от которой будут наследоваться все объекты
 class BaseModel(ABC):
     @abstractmethod
     def __str__(self):  # обязуем все объекты уметь красиво выводиться через print()
@@ -23,7 +21,7 @@ class BaseModel(ABC):
 
 # КЛАСС ФИЛЬМОВ
 class Movie(BaseModel):
-    def __init__(self, movie_id: int, title: str, genres: List[Genre],
+    def __init__(self, movie_id: int, title: str, genres: list[Genre],
                  director: str, year: int, rating: float):
         self._id = movie_id  # айди фильма, приватная переменная
         self._title = title  # название фильма
@@ -49,26 +47,22 @@ class Movie(BaseModel):
     def rating(self):
         return self._rating
 
-    # как будет выводиться фильм через print()
-    def __str__(self):
-        genres = ", ".join([g.value for g in self._genres])  # делаем строку с жанрами
-        return f"{self._title} ({self._year}) — {genres}, рейтинг: {self._rating}"
-
-    # для отладки, чтобы видеть что это за объект
-    def __repr__(self):
-        return f"Movie({self._id}, '{self._title}')"
-
 # КЛАСС ПОЛЬЗОВАТЕЛЕЙ
 class User(BaseModel):
     def __init__(self, user_id: int, name: str):
         self._id = user_id  # айди пользователя
         self._name = name  # имя пользователя
-        self._ratings: Dict[int, float] = {}  # оценки фильмов в виде {id фильма: оценка}
-        self._favorite_genres: List[Genre] = []  # любимые жанры
+        self._ratings: dict[int, float] = {}  # оценки фильмов в виде {id фильма: оценка}
+        self._favorite_genres: list[Genre] = []  # любимые жанры
+    def __str__(self):
+        return f"Пользователь {self._name} ID: {self._id})"
 
     @property
     def id(self):
         return self._id  # возвращаем айди
+    @property
+    def name(self):
+        return self._name
 
     @property
     def favorite_genres(self):
@@ -83,16 +77,12 @@ class User(BaseModel):
         if 0 <= rating <= 10:  # проверяем, чтобы оценка была нормальная
             self._ratings[movie.id] = rating  # сохраняем оценку
         else:
-            print("Оценка должна быть в диапазоне 0–10.")  # если не ок, пишем сообщение
+            print("Оценка должна быть в диапазоне 0–10.")  
 
     # Добавление любимых фильмов
     def add_favorite_genre(self, genre: Genre):
         if genre not in self._favorite_genres:  # если жанра ещё нет
-            self._favorite_genres.append(genre)  # добавляем
-
-    # как выводится пользователь через print()
-    def __str__(self):
-        return f"Пользователь {self._name}, оценено фильмов: {len(self._ratings)}"
+            self._favorite_genres.append(genre)
 
 # ТЕСТОВЫЕ ДАННЫЕ
 class TestData:
