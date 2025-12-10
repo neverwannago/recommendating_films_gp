@@ -7,47 +7,6 @@ class recommendation_strategy(ABC):
     def recommend(self) -> list[Movie]:
         pass
 
-# class genre_recommend(recommendation_strategy):
-#     def __init__(self, user: User):
-#         self.user = user
-#         self.library = MovieLibrary()
-    
-#     def get_favourite_genres(self) -> list[Genre]:
-#         # возвращаем любимые жанры
-#         return self.user.favorite_genres
-    
-#     def find_films_by_genre(self) -> list[Movie]:
-#         # Фильмы с любимыми жанрами
-#         user_genres = self.user.favorite_genres
-#         all_movies = self.library.list_movies()
-        
-#         result = []
-#         for movie in all_movies:
-#             # Проверяем, есть ли общие жанры
-#             for genre in movie.genres:
-#                 if genre in user_genres:
-#                     result.append(movie)
-#                     break
-        
-#         # Сорт по рейтингу
-#         result.sort(key=lambda x: x.rating, reverse=True)
-#         return result
-    
-#     def recommend(self) -> list[Movie]:
-#         return self.find_films_by_genre()
-
-
-# class rating_recommend(recommendation_strategy):
-#     def __init__(self, top_n: int = 10):
-#         self.top_n = top_n
-#         self.library = MovieLibrary()
-    
-#     def recommend(self) -> list[Movie]:
-#         # Просто топ фильмов по рейтингу
-#         all_movies = self.library.list_movies()
-#         all_movies.sort(key=lambda x: x.rating, reverse=True)
-#         return all_movies[:self.top_n]
-
 
 class similar_users_recommend(recommendation_strategy):
     def __init__(self, user: User):
