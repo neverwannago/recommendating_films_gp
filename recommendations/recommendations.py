@@ -28,7 +28,14 @@ class genre_recommend(recommendation_strategy):
 class rating_recommend(recommendation_strategy):
     def __init__(self, lib: MovieLibrary): # мы можем просто закинуть сюда нашу movielibrary
         self.lib = lib
+        
+    def recommend(self, us: User):
+        all_movies = self.lib.list_movies()
 
+        sorted_movies = sorted(all_movies, key= lambda m: m.rating, reverse=True) # чиста сортируем по лямбде, почему бы нет
+        # реверс стоит ибо сортировка идет от меньшего к большему, а так наоборот
+
+        return sorted_movies
 
 class similar_users_recommend(recommendation_strategy):
     def __init__(self, user: User):
@@ -70,12 +77,4 @@ class similar_users_recommend(recommendation_strategy):
         
         result.sort(key=lambda x: x.rating, reverse=True)
         return result
-
-    def recommend(self, us: User):
-        all_movies = self.lib.list_movies()
-
-        sorted_movies = sorted(all_movies, key= lambda m: m.rating, reverse=True) # чиста сортируем по лямбде, почему бы нет
-        # реверс стоит ибо сортировка идет от меньшего к большему, а так наоборот
-
-        return sorted_movies
 
