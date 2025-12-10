@@ -8,7 +8,7 @@ class MovieLibrary:
     def __new__(cls):
         if cls._instance is None:  # если ещё нет объекта
             cls._instance = super(MovieLibrary, cls).__new__(cls)  # создаём новый
-            cls._instance._movies = {TestData.load_movies()}  # словарь фильмов
+            cls._instance._movies = {}  # словарь фильмов
             cls._instance._users = {}  # словарь пользователей
         return cls._instance  # возвращаем один и тот же объект
 
