@@ -1,4 +1,4 @@
-from data.data import Movie, User # классы чтобы вообще прога поняла откуда у нас все это
+from data.data import Movie, User, Genre  # классы чтобы вообще прога поняла откуда у нас все это
 
 # Класс-хранилище фильмов и пользователей, а также паттерн Singleton
 class MovieLibrary:
@@ -20,6 +20,8 @@ class MovieLibrary:
 
     def list_movies(self):
         return list(self._movies.values())
+    
+
 
     def add_user(self, user: User):
         self._users[user.id] = user
@@ -30,3 +32,19 @@ class MovieLibrary:
     def list_users(self):
         return list(self._users.values())
     
+
+
+    def add_genre_to_user(self, user_id: int, genre: Genre): # выполняется при условии что пользователь есть
+        us = self.get_user(user_id)#вроде же мы можем так написать, почему бы нет?
+
+        if genre in us.favourite_genres:
+            us.add_favourite_genre(genre) # 83 строчка в data.py, вроде должно работать
+
+    def remove_genre_from_user(self, user_id: int, genre: Genre):
+        us = self.get_user(user_id)
+
+        if genre in us.favourite_genres:
+            us.favourite.genres.remove(genre)# ну типа это у нас список поэтому тут remove можно поставить
+
+    def get_us_fav_genres(self, user_id: int): # опять же работает при условии что юз есть 
+        return self.get_user(user_id).favourite_genres
